@@ -48,7 +48,10 @@ export class SessionService {
   }
 
   public async keyLogin(instanceUrl: string, apiKey: string): Promise<ImmichApi> {
+    instanceUrl = await this.resolveApiEndpoint(instanceUrl);
     this.api = new ImmichApi(instanceUrl, apiKey);
+
+    await this.ping();
 
     // Check if server and api key are valid
     const { data: userInfo } = await this.api.userApi.getMyUserInfo().catch((error) => {
@@ -85,6 +88,20 @@ export class SessionService {
 
     if (pingResponse.res !== 'pong') {
       throw new Error(`Could not parse response. Is Immich listening on ${this.api.apiConfiguration.instanceUrl}?`);
+    }
+  }
+
+  private async resolveApiEndpoint(instanceUrl: string): Promise<string> {
+    const wellKnownUrl = new URL('.well-known/immich', instanceUrl);
+    try {
+      const wellKnown = await fetch(wellKnownUrl).then((r) => r.json());
+      const endpoint = new URL(wellKnown.api.endpoint, instanceUrl).toString();
+
+      console.debug(`Constructed API url ${endpoint} from .well-known/immich`);
+      return endpoint;
+    } catch (error) {
+      console.debug(`Could not resolve ${wellKnownUrl}: ${error}`);
+      return instanceUrl;
     }
   }
 }
