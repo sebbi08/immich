@@ -8,6 +8,9 @@ export class LoginKey extends BaseCommand {
     
     console.log('Executing API key auth flow...');
 
+    // HACK: Strip trailing slashes, because they break things. Should probably just handle them well instead.
+    instanceUrl = instanceUrl.replace(/\/$/, "");
+
     await this.sessionService.keyLogin(instanceUrl, apiKey);
   }
 }
