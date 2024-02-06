@@ -105,7 +105,7 @@ export class SessionService {
   private async resolveApiEndpoint(instanceUrl: string): Promise<string> {
     const wellKnownUrl = new URL('.well-known/immich', instanceUrl);
     try {
-      const wellKnown = await fetch(wellKnownUrl).then((r) => r.json());
+      const wellKnown = await fetch(wellKnownUrl).then((response) => response.json());
       const endpoint = new URL(wellKnown.api.endpoint, instanceUrl).toString();
 
       console.debug(`Constructed API url ${endpoint} from .well-known/immich`);
