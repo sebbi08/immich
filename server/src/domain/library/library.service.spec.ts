@@ -18,6 +18,7 @@ import {
   userStub,
 } from '@test';
 import { Stats } from 'node:fs';
+import { Mocked } from 'vitest';
 import { ILibraryFileJob, ILibraryRefreshJob, JobName } from '../job';
 import {
   IAssetRepository,
@@ -36,13 +37,13 @@ describe(LibraryService.name, () => {
   let sut: LibraryService;
 
   let accessMock: IAccessRepositoryMock;
-  let assetMock: jest.Mocked<IAssetRepository>;
-  let configMock: jest.Mocked<ISystemConfigRepository>;
-  let cryptoMock: jest.Mocked<ICryptoRepository>;
-  let userMock: jest.Mocked<IUserRepository>;
-  let jobMock: jest.Mocked<IJobRepository>;
-  let libraryMock: jest.Mocked<ILibraryRepository>;
-  let storageMock: jest.Mocked<IStorageRepository>;
+  let assetMock: Mocked<IAssetRepository>;
+  let configMock: Mocked<ISystemConfigRepository>;
+  let cryptoMock: Mocked<ICryptoRepository>;
+  let userMock: Mocked<IUserRepository>;
+  let jobMock: Mocked<IJobRepository>;
+  let libraryMock: Mocked<ILibraryRepository>;
+  let storageMock: Mocked<IStorageRepository>;
 
   beforeEach(() => {
     accessMock = newAccessRepositoryMock();
@@ -706,7 +707,7 @@ describe(LibraryService.name, () => {
 
       configMock.load.mockResolvedValue(systemConfigStub.libraryWatchEnabled);
 
-      const mockClose = jest.fn();
+      const mockClose = vi.fn();
       storageMock.watch.mockImplementation(makeMockWatcher({ close: mockClose }));
 
       await sut.init();
@@ -1182,7 +1183,7 @@ describe(LibraryService.name, () => {
       it('should watch and unwatch library', async () => {
         libraryMock.getAll.mockResolvedValue([libraryStub.externalLibraryWithImportPaths1]);
         libraryMock.get.mockResolvedValue(libraryStub.externalLibraryWithImportPaths1);
-        const mockClose = jest.fn();
+        const mockClose = vi.fn();
         storageMock.watch.mockImplementation(makeMockWatcher({ close: mockClose }));
 
         await sut.watchAll();
@@ -1333,7 +1334,7 @@ describe(LibraryService.name, () => {
         }
       });
 
-      const mockClose = jest.fn();
+      const mockClose = vi.fn();
       storageMock.watch.mockImplementation(makeMockWatcher({ close: mockClose }));
 
       await sut.init();

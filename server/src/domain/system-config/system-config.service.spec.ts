@@ -14,6 +14,7 @@ import {
 import { ImmichLogger } from '@app/infra/logger';
 import { BadRequestException } from '@nestjs/common';
 import { newCommunicationRepositoryMock, newSystemConfigRepositoryMock } from '@test';
+import { Mocked } from 'vitest';
 import { QueueName } from '../job';
 import { ICommunicationRepository, ISearchRepository, ISystemConfigRepository, ServerEvent } from '../repositories';
 import { defaults, SystemConfigValidator } from './system-config.core';
@@ -144,9 +145,9 @@ const updatedConfig = Object.freeze<SystemConfig>({
 
 describe(SystemConfigService.name, () => {
   let sut: SystemConfigService;
-  let configMock: jest.Mocked<ISystemConfigRepository>;
-  let communicationMock: jest.Mocked<ICommunicationRepository>;
-  let smartInfoMock: jest.Mocked<ISearchRepository>;
+  let configMock: Mocked<ISystemConfigRepository>;
+  let communicationMock: Mocked<ICommunicationRepository>;
+  let smartInfoMock: Mocked<ISearchRepository>;
 
   beforeEach(async () => {
     delete process.env.IMMICH_CONFIG_FILE;
@@ -170,7 +171,7 @@ describe(SystemConfigService.name, () => {
 
   describe('addValidator', () => {
     it('should call the validator on config changes', async () => {
-      const validator: SystemConfigValidator = jest.fn();
+      const validator: SystemConfigValidator = vi.fn();
       sut.addValidator(validator);
       await sut.updateConfig(defaults);
       expect(validator).toHaveBeenCalledWith(defaults, defaults);
@@ -178,16 +179,6 @@ describe(SystemConfigService.name, () => {
   });
 
   describe('getConfig', () => {
-    let warnLog: jest.SpyInstance;
-
-    beforeEach(() => {
-      warnLog = jest.spyOn(ImmichLogger.prototype, 'warn');
-    });
-
-    afterEach(() => {
-      warnLog.mockRestore();
-    });
-
     it('should return the default config', async () => {
       configMock.load.mockResolvedValue([]);
 
@@ -246,6 +237,8 @@ describe(SystemConfigService.name, () => {
         process.env.IMMICH_CONFIG_FILE = 'immich-config.json';
         configMock.readFile.mockResolvedValue(JSON.stringify(test.config));
 
+        const warnLog = vi.spyOn(ImmichLogger.prototype, 'warn');
+
         if (test.warn) {
           await sut.getConfig();
           expect(warnLog).toHaveBeenCalled();
@@ -302,7 +295,7 @@ describe(SystemConfigService.name, () => {
     });
 
     it('should throw an error if the config is not valid', async () => {
-      const validator = jest.fn().mockRejectedValue('invalid config');
+      const validator = vi.fn().mockRejectedValue('invalid config');
 
       sut.addValidator(validator);
 
@@ -322,7 +315,7 @@ describe(SystemConfigService.name, () => {
 
   describe('refreshConfig', () => {
     it('should notify the subscribers', async () => {
-      const changeMock = jest.fn();
+      const changeMock = vi.fn();
       const subscription = sut.config$.subscribe(changeMock);
 
       await sut.refreshConfig();
