@@ -15,11 +15,12 @@ import { Span } from 'nestjs-otel';
 import { constants, createReadStream, existsSync, mkdirSync } from 'node:fs';
 import fs from 'node:fs/promises';
 import path from 'node:path';
+import { DecorateAll } from '../infra.utils';
 
+@DecorateAll(Span())
 export class FilesystemProvider implements IStorageRepository {
   private logger = new ImmichLogger(FilesystemProvider.name);
 
-  @Span()
   createZipStream(): ImmichZipStream {
     const archive = archiver('zip', { store: true });
 
@@ -32,7 +33,6 @@ export class FilesystemProvider implements IStorageRepository {
     return { stream: archive, addFile, finalize };
   }
 
-  @Span()
   async createReadStream(filepath: string, mimeType?: string | null): Promise<ImmichReadStream> {
     const { size } = await fs.stat(filepath);
     await fs.access(filepath, constants.R_OK);
@@ -43,12 +43,10 @@ export class FilesystemProvider implements IStorageRepository {
     };
   }
 
-  @Span()
   async readdir(folder: string): Promise<string[]> {
     return fs.readdir(folder);
   }
 
-  @Span()
   async readFile(filepath: string, options?: fs.FileReadOptions<Buffer>): Promise<Buffer> {
     const file = await fs.open(filepath);
     try {
@@ -59,27 +57,22 @@ export class FilesystemProvider implements IStorageRepository {
     }
   }
 
-  @Span()
   writeFile(filepath: string, buffer: Buffer) {
     return fs.writeFile(filepath, buffer);
   }
 
-  @Span()
   rename(source: string, target: string) {
     return fs.rename(source, target);
   }
 
-  @Span()
   copyFile(source: string, target: string) {
     return fs.copyFile(source, target);
   }
 
-  @Span()
   utimes(filepath: string, atime: Date, mtime: Date) {
     return fs.utimes(filepath, atime, mtime);
   }
 
-  @Span()
   async checkFileExists(filepath: string, mode = constants.F_OK): Promise<boolean> {
     try {
       await fs.access(filepath, mode);
@@ -89,7 +82,6 @@ export class FilesystemProvider implements IStorageRepository {
     }
   }
 
-  @Span()
   async unlink(file: string) {
     try {
       await fs.unlink(file);
@@ -106,12 +98,10 @@ export class FilesystemProvider implements IStorageRepository {
     return fs.stat(filepath);
   }
 
-  @Span()
   async unlinkDir(folder: string, options: { recursive?: boolean; force?: boolean }) {
     await fs.rm(folder, options);
   }
 
-  @Span()
   async removeEmptyDirs(directory: string, self: boolean = false) {
     // lstat does not follow symlinks (in contrast to stat)
     const stats = await fs.lstat(directory);
@@ -130,14 +120,12 @@ export class FilesystemProvider implements IStorageRepository {
     }
   }
 
-  @Span()
   mkdirSync(filepath: string): void {
     if (!existsSync(filepath)) {
       mkdirSync(filepath, { recursive: true });
     }
   }
 
-  @Span()
   async checkDiskUsage(folder: string): Promise<DiskUsage> {
     const stats = await fs.statfs(folder);
     return {
@@ -147,7 +135,6 @@ export class FilesystemProvider implements IStorageRepository {
     };
   }
 
-  @Span()
   crawl(crawlOptions: CrawlOptionsDto): Promise<string[]> {
     const { pathsToCrawl, exclusionPatterns, includeHidden } = crawlOptions;
     if (!pathsToCrawl) {
@@ -166,7 +153,6 @@ export class FilesystemProvider implements IStorageRepository {
     });
   }
 
-  @Span()
   watch(paths: string[], options: WatchOptions, events: Partial<WatchEvents>) {
     const watcher = chokidar.watch(paths, options);
 

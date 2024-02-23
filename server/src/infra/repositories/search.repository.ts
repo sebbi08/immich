@@ -21,7 +21,9 @@ import { vectorExt } from '../database.config';
 import { DummyValue, GenerateSql } from '../infra.util';
 import { asVector, isValidInteger, paginatedBuilder, searchAssetBuilder } from '../infra.utils';
 import { Span } from 'nestjs-otel';
+import { DecorateAll } from '../infra.utils';
 
+@DecorateAll(Span())
 @Injectable()
 export class SearchRepository implements ISearchRepository {
   private logger = new ImmichLogger(SearchRepository.name);
@@ -39,7 +41,6 @@ export class SearchRepository implements ISearchRepository {
       .filter((propertyName) => propertyName !== 'embedding');
   }
 
-  @Span()
   async init(modelName: string): Promise<void> {
     const { dimSize } = getCLIPModelInfo(modelName);
     const curDimSize = await this.getDimSize();
@@ -51,7 +52,6 @@ export class SearchRepository implements ISearchRepository {
     }
   }
 
-  @Span()
   @GenerateSql({
     params: [
       { page: 1, size: 100 },
@@ -77,7 +77,6 @@ export class SearchRepository implements ISearchRepository {
     });
   }
 
-  @Span()
   @GenerateSql({
     params: [
       { page: 1, size: 100 },
@@ -117,7 +116,6 @@ export class SearchRepository implements ISearchRepository {
     return results;
   }
 
-  @Span()
   @GenerateSql({
     params: [
       {
@@ -177,7 +175,6 @@ export class SearchRepository implements ISearchRepository {
     }));
   }
 
-  @Span()
   async upsert(smartInfo: Partial<SmartInfoEntity>, embedding?: Embedding): Promise<void> {
     await this.repository.upsert(smartInfo, { conflictPaths: ['assetId'] });
     if (!smartInfo.assetId || !embedding) {
