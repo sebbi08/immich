@@ -23,12 +23,12 @@ import { InjectDataSource, InjectRepository } from '@nestjs/typeorm';
 import { DefaultReadTaskOptions, exiftool, Tags } from 'exiftool-vendored';
 import * as geotz from 'geo-tz';
 import { getName } from 'i18n-iso-countries';
+import { Span } from 'nestjs-otel';
 import { createReadStream, existsSync } from 'node:fs';
 import { readFile } from 'node:fs/promises';
 import * as readLine from 'node:readline';
 import { DataSource, DeepPartial, QueryRunner, Repository } from 'typeorm';
 import { DummyValue, GenerateSql } from '../infra.util';
-import { Span } from 'nestjs-otel';
 import { DecorateAll } from '../infra.utils';
 
 type GeoEntity = GeodataPlacesEntity | GeodataAdmin1Entity | GeodataAdmin2Entity;
