@@ -122,7 +122,7 @@ export function ChunkedSet(options?: { paramIndex?: number }): MethodDecorator {
   return Chunked({ ...options, mergeFn: setUnion });
 }
 
-export function DecorateAll(decorator: MethodDecorator) {
+export function DecorateAll(decorator: <T>(target: Object, propertyKey: string, descriptor: TypedPropertyDescriptor<T>) => TypedPropertyDescriptor<T> | void) {
   return (target: any) => {
       const descriptors = Object.getOwnPropertyDescriptors(target.prototype);
       for (const [propName, descriptor] of Object.entries(descriptors)) {
