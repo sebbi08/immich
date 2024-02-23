@@ -32,7 +32,7 @@ const otelSDK = new NodeSDK({
     new HttpInstrumentation(),
     new IORedisInstrumentation(),
     new NestInstrumentation(),
-    new PgInstrumentation(),
+    // new PgInstrumentation(),
   ],
 });
 
